@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { DrizzleModule } from '@nestjs/drizzle';
 import { drizzle } from 'drizzle-orm/postgres-js';
+import { UserModule } from './modules/user/user.module.js';
 
 @Module({
   imports: [
@@ -8,6 +9,7 @@ import { drizzle } from 'drizzle-orm/postgres-js';
       drizzle,
       connection: process.env.DATABASE_URL!,
     }),
+    UserModule,
   ],
 })
 export class AppModule {}
