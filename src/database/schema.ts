@@ -29,7 +29,7 @@ export const sessions = pgTable('sessions', {
 
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
-export type Message = typeof users.$inferSelect;
-export type NewMessage = typeof users.$inferInsert;
-export type Session = typeof users.$inferSelect;
-export type NewSession = typeof users.$inferInsert;
+export type Message = typeof messages.$inferSelect;
+export type NewMessage = typeof messages.$inferInsert;
+export type Session = typeof sessions.$inferSelect;
+export type NewSession = typeof sessions.$inferInsert;
