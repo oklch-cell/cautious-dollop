@@ -18,7 +18,12 @@ export class UserService {
     return await this.database
       .insert(users)
       .values({ username, email, password_hash: await hash(password_hash, 10) })
-      .returning()
+      .returning({
+        id: users.id,
+        username: users.username,
+        email: users.email,
+        access_token: users.access_token,
+      })
       .then((row) => row[0]);
   }
 
@@ -40,21 +45,42 @@ export class UserService {
       .then((row) => row[0]);
   }
 
-  async update(id: string, { username, email }: Partial<NewUser>) {
+  async update(
+    id: string,
+    {
+      username,
+      email,
+      access_token,
+      access_token_expires_at,
+    }: Partial<NewUser>,
+  ) {
     return this.database
       .update(users)
-      .set({ username, email })
+      .set({ username, email, access_token, access_token_expires_at })
       .where(eq(users.id, id))
-      .returning()
+      .returning({
+        id: users.id,
+        username: users.username,
+        email: users.email,
+        access_token: users.access_token,
+      })
       .then((row) => row[0]);
   }
 
-  async changePassword(id: string, password_hash: string) {
+  async changePassword(id: string, new_password: string, old_password: string) {
     return this.database
       .update(users)
-      .set({ password_hash: await hash(password_hash, 10) })
-      .where(eq(users.id, id))
-      .returning()
+      .set({ password_hash: await hash(new_password, 10) })
+      .where(
+        eq(users.id, id) &&
+          eq(users.password_hash, await hash(old_password, 10)),
+      )
+      .returning({
+        id: users.id,
+        username: users.username,
+        email: users.email,
+        access_token: users.access_token,
+      })
       .then((row) => row[0]);
   }
 
