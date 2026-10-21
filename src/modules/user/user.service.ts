@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectDrizzle } from '@nestjs/drizzle';
 import { users } from '../../database/schema.js';
 import { eq } from 'drizzle-orm';
-import { hash } from 'bcryptjs';
+import { compare, hash } from 'bcryptjs';
 
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import type { NewUser } from '../../database/schema.js';
@@ -14,10 +14,22 @@ export class UserService {
     private readonly database: PostgresJsDatabase,
   ) {}
 
-  async create({ username, email, password_hash }: NewUser) {
+  async create({
+    username,
+    email,
+    password_hash,
+    access_token,
+    access_token_expires_at,
+  }: NewUser) {
     return await this.database
       .insert(users)
-      .values({ username, email, password_hash: await hash(password_hash, 10) })
+      .values({
+        username,
+        email,
+        password_hash: await hash(password_hash, 10),
+        access_token,
+        access_token_expires_at,
+      })
       .returning({
         id: users.id,
         username: users.username,
@@ -54,7 +66,7 @@ export class UserService {
       access_token_expires_at,
     }: Partial<NewUser>,
   ) {
-    return this.database
+    return await this.database
       .update(users)
       .set({ username, email, access_token, access_token_expires_at })
       .where(eq(users.id, id))
@@ -68,13 +80,17 @@ export class UserService {
   }
 
   async changePassword(id: string, new_password: string, old_password: string) {
+    const user = await this.getById(id);
+
+    const matched = await compare(old_password, user.password_hash);
+    if (!matched) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
     return this.database
       .update(users)
       .set({ password_hash: await hash(new_password, 10) })
-      .where(
-        eq(users.id, id) &&
-          eq(users.password_hash, await hash(old_password, 10)),
-      )
+      .where(eq(users.id, id))
       .returning({
         id: users.id,
         username: users.username,

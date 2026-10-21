@@ -10,12 +10,13 @@ import {
   Delete,
 } from '@nestjs/common';
 import { LoginDto, PasswordDto, SignupDto, UpdateDto } from './auth.dto.js';
-import type { Response } from 'express';
 import { AuthService } from './auth.service.js';
 import { CookieGuard } from '../../common/guards/cookie.guard.js';
-import type { User } from '../../database/schema.js';
 import { TokenGuard } from '../../common/guards/token.guard.js';
 import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
+
+import type { User } from '../../database/schema.js';
+import type { Response } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -51,7 +52,13 @@ export class AuthController {
 
   @Delete()
   @UseGuards(CookieGuard, TokenGuard)
-  async delete(@CurrentUser() user: User) {
-    return await this.authService.delete(user);
+  async delete(@CurrentUser() user: User, @Res() res: Response) {
+    return await this.authService.delete(user, res);
+  }
+
+  @Get('logout')
+  @UseGuards(CookieGuard, TokenGuard)
+  async logout(@CurrentUser() user: User, @Res() res: Response) {
+    return await this.authService.logout(user, res);
   }
 }

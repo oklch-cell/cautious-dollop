@@ -4,9 +4,9 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { UserService } from '../user/user.service.js';
-import { SessionService } from './session.service.js';
 import { JwtService } from '@nestjs/jwt';
 import { compare } from 'bcryptjs';
+import { randomBytes } from 'crypto';
 
 import type {
   LoginDto,
@@ -15,16 +15,14 @@ import type {
   UpdateDto,
 } from './auth.dto.js';
 import type { Response } from 'express';
+import type { User } from '../../database/schema.js';
 
 import 'dotenv/config';
-import type { User } from '../../database/schema.js';
-import { randomBytes } from 'crypto';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
-    // private readonly sessionService: SessionService,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -78,7 +76,7 @@ export class AuthService {
       { sub: user.id, email: user.email, username: user.username },
       { secret: process.env.JWT_ACCESS_SECRET!, expiresIn: '7d' },
     );
- 
+
     const session = await this.userService.update(user.id, {
       access_token,
       access_token_expires_at: new Date(
@@ -109,8 +107,19 @@ export class AuthService {
     return { session };
   }
 
-  async delete({ id }: User) {
-    return await this.userService.delete(id);
+  async delete({ id }: User, res: Response) {
+    res.clearCookie('refresh_token');
+    await this.userService.delete(id);
+    return res.status(200).json({ message: 'User deleted successfully' });
+  }
+
+  async logout({ id }: User, res: Response) {
+    res.clearCookie('refresh_token');
+    await this.userService.update(id, {
+      access_token: null,
+      access_token_expires_at: new Date(Date.now()).toISOString(),
+    });
+    return res.status(200).json({ message: 'User logged out successfully' });
   }
 
   async update({ id }: User, dto: UpdateDto) {
@@ -123,13 +132,9 @@ export class AuthService {
   ) {
     const user = await this.userService.changePassword(
       id,
-      old_password,
       new_password,
+      old_password,
     );
-    if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-
     return { user };
   }
 }

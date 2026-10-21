@@ -18,26 +18,22 @@ export class TokenGuard implements CanActivate {
     if (!token) {
       throw new UnauthorizedException('Token not found');
     }
-    console.log('TOKEN:', token);
 
     try {
       const { id, access_token, access_token_expires_at } = request.user;
+
       if (
         !id ||
         !access_token ||
         !access_token_expires_at ||
-        access_token_expires_at > new Date(Date.now()).toISOString()
+        access_token !== token
       ) {
         throw new UnauthorizedException('Invalid session');
       }
 
-      console.log('ID:', id);
-
-      // const session = await this.sessionService.get(id, token);
-      // console.log("SESSION:", session);
-      // if (!session) {
-      //   throw new UnauthorizedException('Invalid token');
-      // }
+      if (access_token_expires_at < new Date(Date.now()).toISOString()) {
+        throw new UnauthorizedException('Session expired');
+      }
     } catch (e) {
       throw new UnauthorizedException(e);
     }
