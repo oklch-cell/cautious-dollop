@@ -57,9 +57,6 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
 
     if (typeof username === 'string') {
-      // if (users.get(username)) {
-      //   return;
-      // }
       users.set(username, client);
       this.server.emit('user-list', Array.from(users.keys()));
       console.log(Array.from(users.keys()));
@@ -68,12 +65,12 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   handleDisconnect(client: Socket) {
-    const { username } = client.handshake.query;
+    const { user } = client.handshake.query;
 
-    if (typeof username === 'string') {
-      users.delete(username);
+    if (typeof user === 'string') {
+      users.delete(user);
       this.server.emit('user-list', Array.from(users.keys()));
-      console.log(`${client.id} -> ${username} disconnected!`);
+      console.log(`${client.id} -> ${user} disconnected!`);
     }
   }
 

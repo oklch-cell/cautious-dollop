@@ -15,7 +15,7 @@ export const messages = pgTable('messages', {
   content: text().notNull(),
   sender: varchar({ length: 255 })
     .notNull()
-    .references(() => users.username),
+    .references(() => users.username, { onDelete: "cascade" }),
   group: varchar({ length: 32 }).notNull(),
   created_at: timestamp({ withTimezone: true, mode: 'string' }).notNull().defaultNow(),
 });
