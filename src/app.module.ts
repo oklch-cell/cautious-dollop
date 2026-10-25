@@ -6,6 +6,7 @@ import { MessageModule } from './modules/message/message.module.js';
 import { AuthModule } from './modules/auth/auth.module.js';
 import { JwtModule } from '@nestjs/jwt';
 import { AppGateway } from './app.gateway.js';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -17,6 +18,10 @@ import { AppGateway } from './app.gateway.js';
     MessageModule,
     AuthModule,
     JwtModule.register({}),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      expandVariables: true,
+    }),
   ],
   providers: [AppGateway],
 })

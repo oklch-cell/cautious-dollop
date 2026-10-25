@@ -2,25 +2,38 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module.js';
 import cookie_parser from 'cookie-parser';
 import { ValidationPipe } from '@nestjs/common';
-
-import "dotenv/config";
+import { ConfigService } from '@nestjs/config';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter.js';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  try {
+    const app = await NestFactory.create(AppModule);
 
-  app.setGlobalPrefix('api');
+    const configService = app.get(ConfigService);
 
-  app.enableCors({ origin: process.env.CLIENT_ORIGINS!, credentials: true });
-  app.use(cookie_parser());
-  
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
-  );
+    app.setGlobalPrefix('api');
+    app.enableCors({
+      origin: configService.get('CLIENT_ORIGINS'),
+      credentials: true,
+    });
+    app.use(cookie_parser());
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        transform: true,
+      }),
+    );
+    app.useGlobalFilters(new HttpExceptionFilter());
 
-  await app.listen(process.env.PORT!);
+    const port = configService.get<number>('PORT') ?? 3000;
+
+    await app.listen(port);
+
+    console.log(`Application running on http://localhost:${port}/`);
+  } catch (e) {
+    console.error('Bootstrap failed');
+    console.error(e);
+  }
 }
 await bootstrap();

@@ -8,13 +8,14 @@ import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { UserService } from '../../modules/user/user.service.js';
 
-import 'dotenv/config';
 import { User } from '../../database/schema.js';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class CookieGuard implements CanActivate {
   constructor(
     private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
     private readonly userSerivce: UserService,
   ) {}
 
@@ -30,7 +31,7 @@ export class CookieGuard implements CanActivate {
 
     try {
       const { sub } = await this.jwtService.verifyAsync(cookie, {
-        secret: process.env.JWT_ACCESS_SECRET!,
+        secret: this.configService.get('JWT_ACCESS_SECRET'),
       });
       if (!sub) {
         throw new UnauthorizedException('Invalid token');
