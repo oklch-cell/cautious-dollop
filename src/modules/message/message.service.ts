@@ -23,7 +23,10 @@ export class MessageService {
 
   async getAll(group: string) {
     return this.database
-      .select()
+      .select({
+        text: messages.content,
+        sender: messages.sender,
+      })
       .from(messages)
       .where(eq(messages.group, group));
   }
