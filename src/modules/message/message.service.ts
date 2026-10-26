@@ -14,28 +14,40 @@ export class MessageService {
   ) {}
 
   async create({ content, sender, group }: NewMessage) {
-    return this.database
-      .insert(messages)
-      .values({ content, sender, group })
-      .returning()
-      .then((row) => row[0]);
+    try {
+      return this.database
+        .insert(messages)
+        .values({ content, sender, group })
+        .returning()
+        .then((row) => row[0]);
+    } catch (e) {
+      throw e;
+    }
   }
 
   async getAll(group: string) {
-    return this.database
-      .select({
-        text: messages.content,
-        sender: messages.sender,
-      })
-      .from(messages)
-      .where(eq(messages.group, group));
+    try {
+      return this.database
+        .select({
+          text: messages.content,
+          sender: messages.sender,
+        })
+        .from(messages)
+        .where(eq(messages.group, group));
+    } catch (e) {
+      throw e;
+    }
   }
 
   async delete(id: string) {
-    return this.database
-      .delete(messages)
-      .where(eq(messages.id, id))
-      .returning()
-      .then((row) => row[0]);
+    try {
+      return this.database
+        .delete(messages)
+        .where(eq(messages.id, id))
+        .returning()
+        .then((row) => row[0]);
+    } catch (e) {
+      throw e;
+    }
   }
 }

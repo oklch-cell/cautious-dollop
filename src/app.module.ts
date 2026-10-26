@@ -7,6 +7,7 @@ import { AuthModule } from './modules/auth/auth.module.js';
 import { JwtModule } from '@nestjs/jwt';
 import { AppGateway } from './app.gateway.js';
 import { ConfigModule } from '@nestjs/config';
+import { AppController } from './app.controller.js';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { ConfigModule } from '@nestjs/config';
       expandVariables: true,
     }),
   ],
+  controllers: [AppController],
   providers: [AppGateway],
 })
 export class AppModule {}

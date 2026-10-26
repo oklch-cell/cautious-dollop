@@ -20,8 +20,6 @@ export class CookieGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    console.log("COOKIE GUARD ENTERED!");
-
     const request = context
       .switchToHttp()
       .getRequest<Request & { user: User }>();

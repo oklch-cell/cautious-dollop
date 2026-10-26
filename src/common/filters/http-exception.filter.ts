@@ -30,7 +30,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
         : ((exceptionResponse as Record<string, unknown>).message ??
           exceptionResponse);
 
-    response.status(status).json({
+    return response.status(status).json({
       statusCode: status,
       message,
       timestamp: new Date().toISOString(),
