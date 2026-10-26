@@ -5,7 +5,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import { ConfigService } from '@nestjs/config';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter.js';
-import  express from 'express';
+import express from 'express';
 
 const server = express();
 
