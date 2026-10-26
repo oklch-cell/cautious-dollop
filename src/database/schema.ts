@@ -7,7 +7,7 @@ export const users = pgTable('users', {
   password_hash: text().notNull(),
   created_at: timestamp({ mode: 'string' }).notNull().defaultNow(),
   access_token: text(),
-  access_token_expires_at: timestamp({ withTimezone: true, mode: 'string' }),
+  access_token_expires_at: varchar(),
 });
 
 export const messages = pgTable('messages', {

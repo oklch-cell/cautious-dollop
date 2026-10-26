@@ -61,7 +61,7 @@ export class AuthService {
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
 
-      response.status(201).json({ session: user });
+      return response.status(201).json({ session: user });
     } catch (e) {
       console.error('Signup error');
       throw e;
@@ -104,7 +104,7 @@ export class AuthService {
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
 
-      response.status(200).json({ session });
+      return response.status(200).json({ session });
     } catch (e) {
       console.error(e);
       throw e;
@@ -113,6 +113,7 @@ export class AuthService {
 
   async authenticate(user: User) {
     try {
+
       const access_token = randomBytes(32).toString('hex');
 
       const session = await this.userService.update(user.id, {
@@ -122,6 +123,7 @@ export class AuthService {
         ).toISOString(),
       });
 
+      console.log(session);
       return { session };
     } catch (e) {
       console.error(e);

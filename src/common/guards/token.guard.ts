@@ -34,7 +34,9 @@ export class TokenGuard implements CanActivate {
       if (access_token_expires_at < new Date(Date.now()).toISOString()) {
         throw new UnauthorizedException('Session expired');
       }
+
     } catch (e) {
+      console.log(e);
       throw new UnauthorizedException(e);
     }
     return true;

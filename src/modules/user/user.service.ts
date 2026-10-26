@@ -40,7 +40,7 @@ export class UserService {
   }
 
   async getById(id: string) {
-    return this.database
+    return await this.database
       .select()
       .from(users)
       .where(eq(users.id, id))
@@ -49,7 +49,7 @@ export class UserService {
   }
 
   async getByEmail(email: string) {
-    return this.database
+    return await this.database
       .select()
       .from(users)
       .where(eq(users.email, email))
@@ -87,7 +87,7 @@ export class UserService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    return this.database
+    return await this.database
       .update(users)
       .set({ password_hash: await hash(new_password, 10) })
       .where(eq(users.id, id))
@@ -101,7 +101,7 @@ export class UserService {
   }
 
   async delete(id: string) {
-    return this.database
+    return await this.database
       .delete(users)
       .where(eq(users.id, id))
       .returning()

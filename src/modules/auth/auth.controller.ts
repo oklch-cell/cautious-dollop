@@ -24,6 +24,7 @@ export class AuthController {
 
   @Post('signup')
   async signup(@Body() dto: SignupDto, @Res() res: Response) {
+    console.log("SIGNUP HIT!");
     return await this.authService.signup(dto, res);
   }
 
@@ -35,6 +36,7 @@ export class AuthController {
   @Get('me')
   @UseGuards(CookieGuard)
   async authenticate(@Req() request: Request & { user: User }) {
+    console.log(request.user);
     return await this.authService.authenticate(request.user);
   }
 
@@ -59,6 +61,7 @@ export class AuthController {
   @Get('logout')
   @UseGuards(CookieGuard, TokenGuard)
   async logout(@CurrentUser() user: User, @Res() res: Response) {
+    console.log("LOGOUT CONTROLLER ENTERED!");
     return await this.authService.logout(user, res);
   }
 }
