@@ -16,7 +16,7 @@
         },
         {
           "key": "Access-Control-Allow-Methods",
-          "value": "GET, POST, OPTIONS"
+          "value": "GET, POST, OPTIONS, DELETE, PATCH"
         },
         {
           "key": "Access-Control-Allow-Headers",

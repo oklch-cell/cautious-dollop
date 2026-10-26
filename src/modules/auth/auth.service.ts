@@ -56,8 +56,9 @@ export class AuthService {
 
       response.cookie('refresh_token', refresh_token, {
         httpOnly: true,
-        sameSite: 'lax',
-        secure: process.env.NODE_ENV === 'production',
+        sameSite:
+          this.configService.get('NODE_ENV') === 'production' ? 'none' : 'lax',
+        secure: this.configService.get('NODE_ENV') === 'production',
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
 
@@ -99,8 +100,9 @@ export class AuthService {
 
       response.cookie('refresh_token', refresh_token, {
         httpOnly: true,
-        sameSite: 'lax',
-        secure: process.env.NODE_ENV === 'production',
+        sameSite:
+          this.configService.get('NODE_ENV') === 'production' ? 'none' : 'lax',
+        secure: this.configService.get('NODE_ENV') === 'production',
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
 
@@ -113,7 +115,6 @@ export class AuthService {
 
   async authenticate(user: User) {
     try {
-
       const access_token = randomBytes(32).toString('hex');
 
       const session = await this.userService.update(user.id, {
