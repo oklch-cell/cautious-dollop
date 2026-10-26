@@ -2,13 +2,22 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module.js';
 import cookie_parser from 'cookie-parser';
 import { ValidationPipe } from '@nestjs/common';
+import { ExpressAdapter } from '@nestjs/platform-express';
 import { ConfigService } from '@nestjs/config';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter.js';
+import  express from 'express';
+
+const server = express();
+
+let cachedServer: any;
 
 async function bootstrap() {
-  try {
-    const app = await NestFactory.create(AppModule);
-
+  if (!cachedServer) {
+    const app = await NestFactory.create(
+      AppModule,
+      new ExpressAdapter(server),
+    );
+    
     const configService = app.get(ConfigService);
 
     app.setGlobalPrefix('api');
@@ -25,15 +34,15 @@ async function bootstrap() {
       }),
     );
     app.useGlobalFilters(new HttpExceptionFilter());
-
-    const port = configService.get<number>('PORT') ?? 3000;
-
-    await app.listen(port);
-
-    console.log(`Application running on http://localhost:${port}/`);
-  } catch (e) {
-    console.error('Bootstrap failed');
-    console.error(e);
+    
+    await app.init();
+    cachedServer = server;
   }
+  return cachedServer;
 }
-await bootstrap();
+
+export default async (req: any, res: any) => {
+  const listener = await bootstrap();
+  listener(req, res);
+};
+
