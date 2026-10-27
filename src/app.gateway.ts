@@ -28,7 +28,8 @@ type PublicMessage = {
 const users = new Map<string, Socket>();
 
 @WebSocketGateway({
-  cors: { origin: process.env.CLIENT_ORIGINS, credentials: true },
+  path: "/api/socket",
+  cors: { origin: process.env.CLIENT_ORIGINS!, credentials: true },
 })
 export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
