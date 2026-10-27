@@ -7,14 +7,19 @@ import { ConfigService } from '@nestjs/config';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter.js';
 import express from 'express';
 import { IoAdapter } from '@nestjs/platform-socket.io';
+import { createServer } from 'http';
 
-const server = express();
+const expressServer = express();
+const httpServer = createServer(expressServer);
 
 let cachedServer: any;
 
 async function bootstrap() {
   if (!cachedServer) {
-    const app = await NestFactory.create(AppModule, new ExpressAdapter(server));
+    const app = await NestFactory.create(
+      AppModule,
+      new ExpressAdapter(expressServer),
+    );
 
     app.useWebSocketAdapter(new IoAdapter(app));
 
@@ -36,22 +41,18 @@ async function bootstrap() {
     app.useGlobalFilters(new HttpExceptionFilter());
 
     await app.init();
-    cachedServer = server;
+    cachedServer = expressServer;
   }
   return cachedServer;
 }
 
 export default async (req: any, res: any) => {
   const listener = await bootstrap();
-  listener(req, res);
 
-  if (
-    req.headers.upgrade &&
-    req.headers.upgrade.toLowerCase() === 'websocket'
-  ) {
-    server.emit('upgrade', req, req.socket, Buffer.alloc(0));
-  } else {
-    res.statusCode = 200;
-    res.end('Socket.IO server running');
+  if (req.headers.upgrade?.toLowerCase() === 'websocket') {
+    httpServer.emit('upgrade', req, req.socket, Buffer.alloc(0));
+    return;
   }
+
+  return listener(req, res);
 };
